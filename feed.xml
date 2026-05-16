@@ -1,0 +1,13 @@
+<rss version="2.0">
+<channel>
+  <title>Test Feed</title>
+  <link>https://github.com</link>
+  <description>GitHub Raw RSS Test</description>
+  <item>
+    <title>Hello KindleEar</title>
+    <link>https://github.com</link>
+    <description>GitHub Raw RSS Test Success</description>
+    <pubDate>Sat, 16 May 2026 20:00:00 GMT</pubDate>
+  </item>
+</channel>
+</rss>
