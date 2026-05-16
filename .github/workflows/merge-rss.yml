@@ -1,105 +1,26 @@
-name: 纽约时报 RSS 中文完整版（自动翻译+全文）
+name: 抓取联合早报 RSS
 on:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 */4 * * *'
   workflow_dispatch:
 
 jobs:
-  build:
+  fetch:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: 设置 Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: 安装依赖
-        run: pip install requests beautifulsoup4 lxml
-
-      - name: 抓取纽约时报 + 翻译中文 + 输出完整RSS
+      
+      - name: 抓取联合早报
         run: |
-          cat > fetch.py << 'EOF'
-          import requests
-          from bs4 import BeautifulSoup
-          import re
-
-          # 纽约时报英文源
-          url = "https://rss.nytimes.com/services/xml/rss/nyt/World.xml"
-          headers = {"User-Agent": "Mozilla/5.0"}
-          response = requests.get(url, headers=headers, timeout=15)
-          soup = BeautifulSoup(response.text, "xml")
-
-          rss = []
-          rss.append('<?xml version="1.0" encoding="UTF-8"?>')
-          rss.append('<rss version="2.0">')
-          rss.append('<channel>')
-          rss.append('<title>纽约时报（中文翻译版）</title>')
-          rss.append('<link>https://www.nytimes.com</link>')
-          rss.append('<description>自动翻译全文</description>')
-
-          for item in soup.find_all("item")[:12]:
-              try:
-                  title_en = item.title.get_text(strip=True)
-                  link = item.link.get_text(strip=True)
-                  pub_date = item.pubDate.get_text(strip=True)
-
-                  # 翻译标题
-                  def translate(text):
-                      try:
-                          resp = requests.get(
-                              f"https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q={requests.utils.quote(text)}",
-                              timeout=8
-                          )
-                          return resp.json()[0][0][0]
-                      except:
-                          return text
-
-                  title_cn = translate(title_en)
-
-                  # 抓取文章全文
-                  def get_full_content(url):
-                      try:
-                          res = requests.get(url, headers=headers, timeout=12)
-                          s = BeautifulSoup(res.text, "html.parser")
-                          paras = s.select("section[name=articleBody] p")
-                          if not paras:
-                              paras = s.find_all("p", class_="css-at9mc1")
-                          txt = "\n\n".join(p.get_text(strip=True) for p in paras[:14])
-                          return translate(txt)
-                      except:
-                          return "无法获取全文"
-
-                  content = get_full_content(link)
-
-                  # 组装
-                  rss.append("<item>")
-                  rss.append(f"<title>{title_cn}</title>")
-                  rss.append(f"<link>{link}</link>")
-                  rss.append(f"<pubDate>{pub_date}</pubDate>")
-                  rss.append(f"<description><![CDATA[{content}]]></description>")
-                  rss.append("</item>")
-              except Exception as e:
-                  continue
-
-          rss.append('</channel>')
-          rss.append('</rss>')
-
-          with open("feed.xml", "w", encoding="utf-8") as f:
-              f.write("\n".join(rss))
-
-          EOF
-
-          python fetch.py
-
+          curl -L -s "https://www.zaobao.com/rss.xml" > feed.xml
+          echo "抓取完成"
+      
       - name: 提交更新
         run: |
-          git config --local user.name "${{ github.actor }}"
-          git config --local user.email "${{ github.actor }}@users.noreply.github.com"
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
           git add feed.xml
-          git diff --quiet || (git commit -m "更新纽约时报中文RSS" && git push "https://${{ github.token }}@github.com/${{ github.repository }}.git")
+          git diff --quiet && git diff --staged --quiet || git commit -m "更新联合早报"
+          git push
