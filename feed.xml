@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
 <channel>
-<title>中国数字时代</title>
-<link>https://chinadigitaltimes.net</link>
-<description>新闻推送</description>
+<title>完整文章测试</title>
+<link>https://github.com/644646497/myrss.</link>
+<description>包含完整正文的推送</description>
+
 <item>
-<title>测试文章 - 如果你看到这条，说明手动更新成功了</title>
-<link>https://github.com</link>
-<description>这是手动写入的测试内容。接下来你需要让 GitHub Actions 正常工作，或者继续手动更新。</description>
+<title>特朗普访华：一场没有突破的峰会</title>
+<link>https://www.nytimes.com/2026/05/16/world/europe/trump-xi-china-summit.html</link>
+<description><![CDATA[
+<h2>特朗普访华：一场没有突破的峰会</h2>
+<p>北京——在为期三天的访问中，特朗普总统与中国领导人习近平的会晤并未达成任何重大突破性协议。尽管特朗普称习近平为"朋友"，但双方在贸易、台湾和乌克兰问题上仍存在深刻分歧。</p>
+<p>这次访问凸显了特朗普个性驱动外交的风险。他坚信可以通过个人魅力和意志力维护美国利益，但北京方面显然不为所动。</p>
+<p>据知情人士透露，双方原计划在特朗普访华期间宣布一系列商业协议，但最终未能达成。这反映出中美关系的结构性矛盾难以通过领导人个人关系化解。</p>
+<p><b>全文结束</b></p>
+<p><a href="https://www.nytimes.com/2026/05/16/world/europe/trump-xi-china-summit.html">📖 阅读原文</a></p>
+]]></description>
 <pubDate>Sat, 17 May 2026 00:00:00 GMT</pubDate>
 </item>
+
 </channel>
 </rss>
