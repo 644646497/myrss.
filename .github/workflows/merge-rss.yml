@@ -1,0 +1,82 @@
+name: 合并国内新闻和纽约时报
+on:
+  schedule:
+    - cron: '0 */3 * * *'   # 每3小时更新一次
+  workflow_dispatch:        # 允许手动触发
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: 抓取多个 RSS 源
+        run: |
+          # 创建临时目录
+          mkdir -p temp_feeds
+          
+          # 1. 抓取纽约时报 (英文首页)
+          echo "抓取纽约时报..."
+          curl -s "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml" > temp_feeds/nytimes.xml
+          
+          # 2. 抓取纽约时报中文 (通过 RSSHub)
+          echo "抓取纽约时报中文..."
+          curl -s "https://rsshub.app/nytimes/zh" > temp_feeds/nytimes_zh.xml || echo "中文源抓取失败"
+          
+          # 3. 抓取联合早报 (国内可访问)
+          echo "抓取联合早报..."
+          curl -s "https://www.zaobao.com/rss.xml" > temp_feeds/zaobao.xml
+          
+          # 4. 抓取南方周末
+          echo "抓取南方周末..."
+          curl -s "http://www.infzm.com/rss/home/rss2.0.xml" > temp_feeds/infzm.xml || echo "南方周末抓取失败"
+          
+          # 5. 抓取澎湃新闻
+          echo "抓取澎湃新闻..."
+          curl -s "https://www.thepaper.cn/rss_news.xml" > temp_feeds/thepaper.xml || echo "澎湃抓取失败"
+          
+          # 6. 抓取知乎日报
+          echo "抓取知乎日报..."
+          curl -s "https://feeds.feedburner.com/zhihu-daily" > temp_feeds/zhihu.xml
+          
+          echo "所有源抓取完成"
+      
+      - name: 合并 RSS 并生成最终文件
+        run: |
+          cat > feed.xml << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <rss version="2.0">
+          <channel>
+            <title>新闻合辑 - 纽约时报 + 国内媒体</title>
+            <link>https://github.com/644646497/myrss.</link>
+            <description>自动合并纽约时报和国内新闻</description>
+            <language>zh-cn</language>
+            <lastBuildDate>'''$(date -R)'''</lastBuildDate>
+          EOF
+          
+          # 添加纽约时报文章
+          echo "  <!-- 纽约时报文章 -->" >> feed.xml
+          grep -A 20 '<item>' temp_feeds/nytimes.xml | head -100 >> feed.xml
+          
+          # 添加联合早报文章
+          echo "  <!-- 联合早报文章 -->" >> feed.xml
+          grep -A 20 '<item>' temp_feeds/zaobao.xml | head -100 >> feed.xml
+          
+          # 添加知乎日报
+          echo "  <!-- 知乎日报文章 -->" >> feed.xml
+          grep -A 15 '<item>' temp_feeds/zhihu.xml | head -80 >> feed.xml
+          
+          echo "</channel>" >> feed.xml
+          echo "</rss>" >> feed.xml
+          
+          echo "合并完成"
+      
+      - name: 提交更新
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add feed.xml
+          git diff --quiet && git diff --staged --quiet || git commit -m "自动更新新闻合辑"
+          git push
