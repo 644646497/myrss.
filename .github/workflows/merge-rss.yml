@@ -1,25 +1,24 @@
-name: IT之家RSS
-
+name: 中文新闻RSS推送
 on:
+  schedule:
+    - cron: '0 */6 * * *'  # 每6小时更新一次
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Download RSS
+      - name: 拉取澎湃新闻RSS
         run: |
-          curl -L "https://www.ithome.com/rss/" -o feed.xml
+          curl -s "https://www.thepaper.cn/rss/index.xml" -o feed.xml
 
-      - name: Commit RSS
+      - name: 提交更新
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-
+          git config --local user.name "${{ github.actor }}"
+          git config --local user.email "${{ github.actor }}@users.noreply.github.com"
           git add feed.xml
-          git commit -m "update rss" || exit 0
-          git push
+          git diff --quiet || git commit -m "更新中文新闻" && git push "https://${{ github.token }}@github.com/${{ github.repository }}.git"
