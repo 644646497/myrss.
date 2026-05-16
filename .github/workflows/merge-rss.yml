@@ -1,4 +1,4 @@
-name: DW Chinese Full RSS
+name: IT之家RSS
 
 on:
   workflow_dispatch:
@@ -11,58 +11,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install packages
+      - name: Download RSS
         run: |
-          pip install feedparser requests beautifulsoup4
-
-      - name: Generate RSS
-        run: |
-          python << EOF
-          import feedparser
-          import requests
-          from bs4 import BeautifulSoup
-
-          rss_url = "https://rss.dw.com/xml/rss-chi-all"
-
-          feed = feedparser.parse(rss_url)
-
-          rss = """<?xml version="1.0" encoding="UTF-8"?>
-          <rss version="2.0">
-          <channel>
-          <title>DW Chinese Full RSS</title>
-          <link>https://dw.com</link>
-          <description>DW Full RSS</description>
-          """
-
-          for entry in feed.entries[:5]:
-              try:
-                  html = requests.get(entry.link, timeout=20).text
-                  soup = BeautifulSoup(html, "html.parser")
-
-                  text = soup.get_text()
-
-                  rss += f"""
-                  <item>
-                  <title>{entry.title}</title>
-                  <link>{entry.link}</link>
-                  <description><![CDATA[{text[:5000]}]]></description>
-                  </item>
-                  """
-
-              except Exception as e:
-                  print(e)
-
-          rss += "</channel></rss>"
-
-          with open("feed.xml", "w", encoding="utf-8") as f:
-              f.write(rss)
-
-          EOF
+          curl -L "https://www.ithome.com/rss/" -o feed.xml
 
       - name: Commit RSS
         run: |
