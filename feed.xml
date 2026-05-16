@@ -1,13 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
 <channel>
-  <title>Test Feed</title>
-  <link>https://github.com</link>
-  <description>GitHub Raw RSS Test</description>
-  <item>
-    <title>Hello KindleEar</title>
-    <link>https://github.com</link>
-    <description>GitHub Raw RSS Test Success</description>
-    <pubDate>Sat, 16 May 2026 20:00:00 GMT</pubDate>
-  </item>
+  <title>新闻合辑 - 纽约时报 + 国内媒体</title>
+  <link>https://github.com/644646497/myrss.</link>
+  <description>自动合并纽约时报和国内新闻</description>
+  <language>zh-cn</language>
+  <lastBuildDate>'''$(date -R)'''</lastBuildDate>
+  <!-- 纽约时报文章 -->
+    <item>
+      <title>Trump Calls Xi a ‘Friend.’ But He Left China Without Any Breakthroughs.</title>
+      <link>https://www.nytimes.com/2026/05/16/world/europe/trump-xi-china-summit.html</link>
+      <guid isPermaLink="true">https://www.nytimes.com/2026/05/16/world/europe/trump-xi-china-summit.html</guid>
+      <atom:link href="https://www.nytimes.com/2026/05/16/world/europe/trump-xi-china-summit.html" rel="standout"></atom:link>
+      <description>The lack of concrete agreements with Beijing shows the risks of President Trump’s personality-driven foreign policy, which rests on the belief that he can defend U.S. interests through charm and force of will.</description>
+      <dc:creator>Anton Troianovski</dc:creator>
+      <pubDate>Sat, 16 May 2026 17:01:10 +0000</pubDate>
+      <category domain="http://www.nytimes.com/namespaces/keywords/des">United States International Relations</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">State Department</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Baier, Bret</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Kim Jong-un</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Putin, Vladimir V</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Trump, Donald J</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Xi Jinping</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">China</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">United States</category>
+      <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2026/05/16/multimedia/16dc-trump-diplo-mzvf/16dc-trump-diplo-mzvf-mediumSquareAt3X.jpg" width="1800"></media:content>
+      <media:credit>Kenny Holston/The New York Times</media:credit>
+      <media:description>President Trump and China’s leader, Xi Jinping, at the state banquet in Beijing on Thursday.</media:description>
+    </item>
+    <item>
+      <title>Trump Uses Taiwan Arms Sales as Bargaining Chip With China, in a Risky Move</title>
+      <link>https://www.nytimes.com/2026/05/16/world/asia/trump-taiwan-arms-bargaining-chip-china.html</link>
+      <guid isPermaLink="true">https://www.nytimes.com/2026/05/16/world/asia/trump-taiwan-arms-bargaining-chip-china.html</guid>
+      <atom:link href="https://www.nytimes.com/2026/05/16/world/asia/trump-taiwan-arms-bargaining-chip-china.html" rel="standout"></atom:link>
+      <description>The president said a potential arms deal for Taiwan was a “very good negotiating chip” in talks with Beijing. His words raise questions about the reliability of U.S. support.</description>
+      <dc:creator>Chris Buckley</dc:creator>
+      <pubDate>Sat, 16 May 2026 15:11:25 +0000</pubDate>
+      <category domain="http://www.nytimes.com/namespaces/keywords/des">International Relations</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/des">United States Politics and Government</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/des">Arms Trade</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Communist Party of China</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">State Department</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Lai Ching-te</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Rubio, Marco</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Trump, Donald J</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Xi Jinping</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">China</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Taipei (Taiwan)</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Taiwan</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Taiwan Strait</category>
+--
+    <item>
+      <title>China Will Host Putin, Days After Trump’s Visit</title>
+      <link>https://www.nytimes.com/2026/05/16/world/europe/putin-china-visit-trump.html</link>
+      <guid isPermaLink="true">https://www.nytimes.com/2026/05/16/world/europe/putin-china-visit-trump.html</guid>
+      <atom:link href="https://www.nytimes.com/2026/05/16/world/europe/putin-china-visit-trump.html" rel="standout"></atom:link>
+      <description>The Russian leader will go to Beijing on Tuesday for talks with President Xi Jinping. The Kremlin said he had watched President Trump’s visit closely.</description>
+      <dc:creator>Ivan Nechepurenko</dc:creator>
+      <pubDate>Sat, 16 May 2026 11:23:43 +0000</pubDate>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Putin, Vladimir V</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">China</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Xi Jinping</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Trump, Donald J</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Russia</category>
+      <media:content height="1801" medium="image" url="https://static01.nyt.com/images/2026/05/16/multimedia/16int-russia-china-lwth/16int-russia-china-lwth-mediumSquareAt3X.jpg" width="1800"></media:content>
+      <media:credit>Pool photo by Ramil Sitdikov</media:credit>
+      <media:description>President Vladimir V. Putin’s China visit will be “a good opportunity to share opinions on the contacts that the Chinese had with the Americans,” the Kremlin’s spokesman said. </media:description>
+    </item>
+    <item>
+      <title>How a Nature Cruise Turned Into a Nightmare</title>
+      <link>https://www.nytimes.com/2026/05/16/world/europe/hantavirus-hondius-cruise.html</link>
+      <guid isPermaLink="true">https://www.nytimes.com/2026/05/16/world/europe/hantavirus-hondius-cruise.html</guid>
+      <atom:link href="https://www.nytimes.com/2026/05/16/world/europe/hantavirus-hondius-cruise.html" rel="standout"></atom:link>
+      <description>The hantavirus outbreak on the MV Hondius set off alarms for a world still traumatized by Covid. For those on board, the danger was much closer.</description>
+      <dc:creator>Jason Horowitz, Claire Moses, Amelia Nierenberg and Samuel Granados</dc:creator>
+      <pubDate>Sat, 16 May 2026 17:25:54 +0000</pubDate>
+      <category domain="http://www.nytimes.com/namespaces/keywords/des">Hantavirus</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/des">Cruises</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Oceanwide Expeditions BV</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">World Health Organization</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Canary Islands</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Cape Verde</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Johannesburg (South Africa)</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_geo">Tristan da Cunha</category>
+      <media:content height="1800" medium="image" url="https://static01.nyt.com/images/2026/05/13/multimedia/00int-hantavirus-cruise-top-mwgz/00int-hantavirus-cruise-top-mwgz-mediumSquareAt3X.jpg" width="1800"></media:content>
+      <media:credit>Agence France-Presse — Getty Images</media:credit>
+    </item>
+    <item>
+      <title>In Congress, a Sexual Harassment ‘Minefield’ Persists, Aides and Former Staff Say</title>
+      <link>https://www.nytimes.com/2026/05/16/us/politics/on-capitol-hill-a-sexual-harassment-minefield-persists.html</link>
+      <guid isPermaLink="true">https://www.nytimes.com/2026/05/16/us/politics/on-capitol-hill-a-sexual-harassment-minefield-persists.html</guid>
+      <atom:link href="https://www.nytimes.com/2026/05/16/us/politics/on-capitol-hill-a-sexual-harassment-minefield-persists.html" rel="standout"></atom:link>
+      <description>Nearly 10 years after Congress instituted measures to make it easier for women to lodge harassment complaints, lawmakers and aides say the behavior is still rampant.</description>
+      <dc:creator>Annie Karni, Michael Gold and Jill Cowan</dc:creator>
+      <pubDate>Sat, 16 May 2026 16:34:36 +0000</pubDate>
+      <category domain="http://www.nytimes.com/namespaces/keywords/des">United States Politics and Government</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/des">Ethics and Official Misconduct</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/des">Sexual Harassment</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/des">Workplace Hazards and Violations</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/des">Discrimination</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/des">#MeToo Movement</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/des">Sex Crimes</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Democratic Party</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">House of Representatives</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">House Committee on Ethics</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_org">Senate</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Gonzales, Tony (1980- )</category>
+      <category domain="http://www.nytimes.com/namespaces/keywords/nyt_per">Jeffries, Hakeem</category>
+  <!-- 联合早报文章 -->
+  <!-- 知乎日报文章 -->
 </channel>
 </rss>
