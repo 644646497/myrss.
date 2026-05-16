@@ -1,26 +1,86 @@
-name: 抓取 RSS
+name: DW Chinese Full RSS
+
 on:
   schedule:
-    - cron: '0 */4 * * *'
+    - cron: "0 */6 * * *"
   workflow_dispatch:
 
 jobs:
-  fetch:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+
     steps:
       - uses: actions/checkout@v4
-      
-      - name: 抓取 RSS
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install feedparser
+        run: pip install feedparser requests beautifulsoup4 lxml
+
+      - name: Generate Full RSS
         run: |
-          curl -L -s "https://feeds.feedburner.com/chinadigitaltimes/IyPt" > feed.xml
-          echo "抓取完成"
-      
-      - name: 提交更新
+          python << 'EOF'
+          import feedparser
+          import requests
+          from bs4 import BeautifulSoup
+          from xml.sax.saxutils import escape
+
+          rss_url = "https://rss.dw.com/xml/rss-chi-all"
+
+          feed = feedparser.parse(rss_url)
+
+          items = []
+
+          for entry in feed.entries[:10]:
+              try:
+                  html = requests.get(entry.link, timeout=20).text
+                  soup = BeautifulSoup(html, "html.parser")
+
+                  content = ""
+
+                  article = soup.find("div", class_="rich-text")
+                  if article:
+                      content = article.get_text("\n")
+
+                  item = f"""
+                  <item>
+                  <title>{escape(entry.title)}</title>
+                  <link>{entry.link}</link>
+                  <description><![CDATA[{content}]]></description>
+                  </item>
+                  """
+
+                  items.append(item)
+
+              except Exception as e:
+                  print(e)
+
+          rss = f"""<?xml version="1.0" encoding="UTF-8"?>
+          <rss version="2.0">
+          <channel>
+          <title>DW Chinese Full RSS</title>
+          <link>https://dw.com</link>
+          <description>DW Full Text RSS</description>
+
+          {''.join(items)}
+
+          </channel>
+          </rss>
+          """
+
+          with open("feed.xml", "w", encoding="utf-8") as f:
+              f.write(rss)
+
+          EOF
+
+      - name: Commit
         run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
           git add feed.xml
-          git diff --quiet && git diff --staged --quiet || git commit -m "更新RSS"
+          git commit -m "update dw full rss" || exit 0
           git push
