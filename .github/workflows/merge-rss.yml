@@ -1,4 +1,4 @@
-name: 抓取联合早报 RSS
+name: 抓取知乎日报 RSS
 on:
   schedule:
     - cron: '0 */4 * * *'
@@ -12,9 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: 抓取联合早报
+      - name: 抓取知乎日报
         run: |
-          curl -L -s "https://www.zaobao.com/rss.xml" > feed.xml
+          curl -L -s "https://feeds.feedburner.com/zhihu-daily" > feed.xml
           echo "抓取完成"
       
       - name: 提交更新
@@ -22,5 +22,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add feed.xml
-          git diff --quiet && git diff --staged --quiet || git commit -m "更新联合早报"
+          git diff --quiet && git diff --staged --quiet || git commit -m "更新知乎日报"
           git push
