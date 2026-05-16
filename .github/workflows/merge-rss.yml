@@ -1,4 +1,93 @@
-      - name: 拉取新闻RSS
+name: 抓取全文新闻
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: 安装依赖
+        run: pip install requests beautifulsoup4
+        
+      - name: 抓取全文
         run: |
-          curl -L -s "https://feeds.feedburner.com/chinadigitaltimes/IyPt" > feed.xml
-          echo "使用中国数字时代源"
+          python3 << 'EOF'
+          import requests
+          from bs4 import BeautifulSoup
+          import xml.etree.ElementTree as ET
+          
+          # RSS 源（换成你想要的）
+          rss_url = "https://www.zhihu.com/rss"
+          
+          headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+          
+          # 获取 RSS
+          resp = requests.get(rss_url, headers=headers, timeout=30)
+          root = ET.fromstring(resp.content)
+          items = root.findall('.//item')
+          
+          full_rss = '''<?xml version="1.0" encoding="UTF-8"?>
+          <rss version="2.0">
+          <channel>
+            <title>新闻全文推送</title>
+            <link>https://github.com/644646497/myrss.</link>
+            <description>自动抓取全文</description>
+          '''
+          
+          for item in items[:5]:
+              title = item.find('title').text
+              link = item.find('link').text
+              
+              # 抓取文章正文
+              try:
+                  art_resp = requests.get(link, headers=headers, timeout=30)
+                  soup = BeautifulSoup(art_resp.content, 'html.parser')
+                  
+                  # 提取正文（知乎）
+                  content = soup.find('div', class_='RichText')
+                  if not content:
+                      content = soup.find('article')
+                  if not content:
+                      content = soup.find('body')
+                  
+                  if content:
+                      for tag in content(['script', 'style', 'nav', 'header', 'footer', 'aside']):
+                          tag.decompose()
+                      text = content.get_text(separator='\n\n', strip=True)
+                      if len(text) > 8000:
+                          text = text[:8000] + '\n\n... 篇幅限制'
+                  else:
+                      text = '无法提取全文'
+              except Exception as e:
+                  text = f'抓取失败: {e}'
+              
+              full_rss += f'''
+              <item>
+                <title><![CDATA[{title}]]></title>
+                <link>{link}</link>
+                <description><![CDATA[
+                  <h2>{title}</h2>
+                  <p>{text.replace(chr(10), '<br/>')}</p>
+                  <p><a href="{link}">📖 阅读原文</a></p>
+                ]]></description>
+              </item>'''
+          
+          full_rss += '</channel></rss>'
+          with open('feed.xml', 'w', encoding='utf-8') as f:
+              f.write(full_rss)
+          
+          print('抓取完成')
+          EOF
+      
+      - name: 提交更新
+        run: |
+          git config user.name "github-actions"
+          git add feed.xml
+          git diff --quiet --staged || git commit -m "更新全文"
+          git push
