@@ -14,7 +14,7 @@ jobs:
       
       - name: 抓取联合早报
         run: |
-          curl -s "https://www.zaobao.com/rss.xml" > feed.xml
+          curl -L -s "https://www.zaobao.com/rss.xml" > feed.xml
           echo "抓取完成"
       
       - name: 提交更新
