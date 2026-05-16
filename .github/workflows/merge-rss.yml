@@ -7,8 +7,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: 设置 Python
         uses: actions/setup-python@v5
@@ -95,7 +99,7 @@ jobs:
 
       - name: 提交更新
         run: |
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --local user.name "${{ github.actor }}"
+          git config --local user.email "${{ github.actor }}@users.noreply.github.com"
           git add feed.xml
-          git diff --quiet || git commit -m "更新纽约时报中文RSS" && git push
+          git diff --quiet || (git commit -m "更新纽约时报中文RSS" && git push "https://${{ github.token }}@github.com/${{ github.repository }}.git")
