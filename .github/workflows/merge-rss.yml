@@ -1,24 +1,4 @@
-name: 中文新闻RSS推送
-on:
-  schedule:
-    - cron: '0 */6 * * *'  # 每6小时更新一次
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: 拉取澎湃新闻RSS
+      - name: 拉取新闻RSS
         run: |
-          curl -s "https://www.thepaper.cn/rss/index.xml" -o feed.xml
-
-      - name: 提交更新
-        run: |
-          git config --local user.name "${{ github.actor }}"
-          git config --local user.email "${{ github.actor }}@users.noreply.github.com"
-          git add feed.xml
-          git diff --quiet || git commit -m "更新中文新闻" && git push "https://${{ github.token }}@github.com/${{ github.repository }}.git"
+          curl -L -s "https://feeds.feedburner.com/chinadigitaltimes/IyPt" > feed.xml
+          echo "使用中国数字时代源"
