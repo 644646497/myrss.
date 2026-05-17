@@ -1,25 +1,33 @@
-name: Pengpai RSS
+name: DW 中文全文 RSS
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '*/30 * * * *'   # 每30分钟更新一次（可改）
 
 jobs:
-  build:
+  update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Download RSS
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
         run: |
-          curl -L "https://www.thepaper.cn/rss_newsDetail_forward_1739814" -o feed.xml
+          pip install trafilatura feedgenerator requests
 
-      - name: Commit RSS
+      - name: Generate Full-text RSS
+        run: python dw_fulltext_rss.py
+
+      - name: Commit and Push
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add feed.xml
-          git commit -m "update pengpai rss" || exit 0
+          git commit -m "Update DW full-text RSS $(date -u +'%Y-%m-%d %H:%M UTC')" || exit 0
           git push
