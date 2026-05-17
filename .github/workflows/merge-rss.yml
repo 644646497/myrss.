@@ -1,44 +1,86 @@
-name: Update China News RSS
+# -*- coding: utf-8 -*-
+import feedparser
+import requests
+from datetime import datetime
+from xml.etree import ElementTree as ET
 
-on:
-  workflow_dispatch:  # 仅保留手动触发，方便调试
-  # schedule:
-  #   - cron: '*/30 * * * *'  # 调试通过后再打开定时
+# 稳定可用的国内新闻源
+CHINA_NEWS_FEEDS = [
+    "https://www.thepaper.cn/feed",
+    "https://36kr.com/rss.xml",
+    "https://www.caixin.com/rss.xml",
+    "https://www.chinanews.com/rss/news.xml",
+    "https://www.tmtpost.com/rss"
+]
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+OUTPUT_FILE = "rss.xml"
+FEED_TITLE = "国内新闻聚合 | MyRSS"
+FEED_DESCRIPTION = "澎湃、36氪、财新等稳定可用的国内新闻源聚合"
+FEED_LINK = "https://github.com/你的用户名/myrss"
+MAX_ITEMS = 100
 
-    steps:
-      - name: 拉取代码
-        uses: actions/checkout@v4
+def merge_feeds():
+    all_entries = []
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": "zh-CN,zh;q=0.9"
+    }
 
-      - name: 安装 Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+    for url in CHINA_NEWS_FEEDS:
+        try:
+            print(f"正在抓取: {url}")
+            response = requests.get(url, headers=headers, timeout=15)
+            response.raise_for_status()  # 非200状态码直接报错
+            feed = feedparser.parse(response.text)
 
-      - name: 安装依赖
-        run: |
-          python -m pip install --upgrade pip
-          pip install feedparser requests
+            if feed.bozo != 0:
+                print(f"⚠️  解析失败: {url}")
+                continue
 
-      - name: 运行脚本（带详细日志）
-        run: |
-          set -x
-          ls -la
-          python merge_rss.py
-        shell: bash
+            for entry in feed.entries:
+                item = {
+                    "title": entry.get("title", "无标题"),
+                    "link": entry.get("link", ""),
+                    "summary": entry.get("summary", ""),
+                    "published": entry.get("published", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+                    "source": feed.feed.get("title", "未知来源")
+                }
+                all_entries.append(item)
+        except Exception as e:
+            print(f"❌ 抓取失败 {url}: {str(e)}")
 
-      - name: 检查生成的文件
-        run: |
-          ls -la
-          cat rss.xml | head -20
+    # 排序去重
+    all_entries.sort(key=lambda x: x["published"], reverse=True)
+    seen_links = set()
+    unique_entries = []
+    for entry in all_entries:
+        if entry["link"] not in seen_links and entry["link"]:
+            seen_links.add(entry["link"])
+            unique_entries.append(entry)
+            if len(unique_entries) >= MAX_ITEMS:
+                break
 
-      - name: 提交更新
-        uses: EndBug/add-and-commit@v9
-        with:
-          message: "Update RSS feed"
-          add: "rss.xml"
-          default_author: github_actions
+    # 生成 RSS
+    rss = ET.Element("rss", version="2.0")
+    channel = ET.SubElement(rss, "channel")
+    ET.SubElement(channel, "title").text = FEED_TITLE
+    ET.SubElement(channel, "link").text = FEED_LINK
+    ET.SubElement(channel, "description").text = FEED_DESCRIPTION
+    ET.SubElement(channel, "lastBuildDate").text = datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S GMT")
+
+    for entry in unique_entries:
+        item = ET.SubElement(channel, "item")
+        ET.SubElement(item, "title").text = f"[{entry['source']}] {entry['title']}"
+        ET.SubElement(item, "link").text = entry["link"]
+        ET.SubElement(item, "description").text = entry["summary"]
+        ET.SubElement(item, "pubDate").text = entry["published"]
+
+    # 写入文件
+    tree = ET.ElementTree(rss)
+    with open(OUTPUT_FILE, "wb") as f:
+        tree.write(f, encoding="utf-8", xml_declaration=True)
+
+    print(f"✅ 成功生成 RSS，共 {len(unique_entries)} 条新闻")
+
+if __name__ == "__main__":
+    merge_feeds()
