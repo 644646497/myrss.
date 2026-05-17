@@ -3,7 +3,11 @@ name: DW 中文全文 RSS
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/30 * * * *'   # 每30分钟更新
+    - cron: '*/30 * * * *'
+
+# 关键：提升权限
+permissions:
+  contents: write   # 允许写入（提交和推送）
 
 jobs:
   update:
@@ -11,6 +15,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}   # 明确使用 token
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -31,7 +37,6 @@ jobs:
           
           git add feed.xml
           
-          # 检查是否有实际改动，没有就跳过提交
           if git diff --staged --quiet; then
             echo "No changes to commit. RSS is up to date."
             exit 0
