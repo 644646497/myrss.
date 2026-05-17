@@ -1,4 +1,4 @@
-name: Simple China News RSS
+name: China & Nikkei RSS Feed
 on:
   workflow_dispatch:
   schedule:
@@ -10,34 +10,76 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run ultra-simple RSS script
+      # 安装依赖
+      - name: Install dependencies
         run: |
-          cat > rss.xml << 'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
-  <channel>
-    <title>国内新闻聚合 - 极简版</title>
-    <link>https://github.com/${{ github.repository }}</link>
-    <description>国内稳定可用的新闻源聚合</description>
-    <lastBuildDate>$(date -u +"%a, %d %b %Y %H:%M:%S GMT")</lastBuildDate>
-    <item>
-      <title>澎湃新闻首页</title>
-      <link>https://www.thepaper.cn/</link>
-      <description>国内深度新闻平台</description>
-      <pubDate>$(date -u +"%a, %d %b %Y %H:%M:%S GMT")</pubDate>
-    </item>
-    <item>
-      <title>中国新闻网首页</title>
-      <link>https://www.chinanews.com/</link>
-      <description>中国新闻网官方网站</description>
-      <pubDate>$(date -u +"%a, %d %b %Y %H:%M:%S GMT")</pubDate>
-    </item>
-  </channel>
-</rss>
+          pip install feedparser requests
+
+      # 运行抓取脚本（含日经中文网）
+      - name: Fetch news
+        run: |
+          python3 << 'EOF'
+import feedparser
+import requests
+from datetime import datetime
+
+# 稳定可用的新闻源（含日经中文网RSSHub地址）
+FEEDS = [
+            # 日经中文网（通过RSSHub获取，稳定且支持全文）
+            "https://rsshub.app/nikkei/cn/rss",
+            # 澎湃新闻
+            "https://www.thepaper.cn/feed",
+            # 中国新闻网
+            "https://www.chinanews.com/rss/news.xml"
+]
+
+headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+
+items = []
+for url in FEEDS:
+    try:
+        resp = requests.get(url, headers=headers, timeout=15)
+        resp.raise_for_status()
+        feed = feedparser.parse(resp.text)
+        if feed.bozo != 0:
+            print(f"⚠️  解析失败: {url}")
+            continue
+        for entry in feed.entries:
+            items.append({
+                "title": f"[{feed.feed.get('title', '未知来源')}] {entry.get('title', '')}",
+                "link": entry.get("link", ""),
+                "summary": entry.get("summary", ""),
+                "pub": entry.get("published", datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S GMT"))
+            })
+    except Exception as e:
+        print(f"❌ 抓取失败 {url}: {str(e)}")
+
+# 按时间倒序 + 限制数量
+items = sorted(items, key=lambda x: x["pub"], reverse=True)[:50]
+
+# 生成RSS文件
+with open("rss.xml", "w", encoding="utf-8") as f:
+    f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+    f.write('<rss version="2.0">\n')
+    f.write('  <channel>\n')
+    f.write(f'    <title>国内+日经中文网新闻聚合</title>\n')
+    f.write(f'    <link>https://github.com/${{ github.repository }}</link>\n')
+    f.write(f'    <description>包含日经中文网、澎湃新闻等稳定源</description>\n')
+    f.write(f'    <lastBuildDate>{datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S GMT")}</lastBuildDate>\n')
+    for item in items:
+        f.write('    <item>\n')
+        f.write(f'      <title>{item["title"]}</title>\n')
+        f.write(f'      <link>{item["link"]}</link>\n')
+        f.write(f'      <description>{item["summary"]}</description>\n')
+        f.write(f'      <pubDate>{item["pub"]}</pubDate>\n')
+        f.write('    </item>\n')
+    f.write('  </channel>\n')
+    f.write('</rss>\n')
 EOF
 
-      - name: Commit and push
+      # 提交更新
+      - name: Commit RSS file
         uses: EndBug/add-and-commit@v9
         with:
-          message: "Update simple RSS feed"
+          message: "Update RSS with Nikkei CN news"
           add: "rss.xml"
