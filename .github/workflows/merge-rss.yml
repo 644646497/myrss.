@@ -3,7 +3,7 @@ name: DW 中文全文 RSS
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/30 * * * *'   # 每30分钟
+    - cron: '*/30 * * * *'   # 每30分钟更新
 
 jobs:
   update:
@@ -29,13 +29,13 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          # 如果有改动就提交，没有就直接成功退出
           git add feed.xml
+          
+          # 检查是否有实际改动，没有就跳过提交
           if git diff --staged --quiet; then
-            echo "No changes to commit"
+            echo "No changes to commit. RSS is up to date."
             exit 0
           fi
           
           git commit -m "Update DW full-text RSS $(date -u +'%Y-%m-%d %H:%M UTC')"
           git push
-        continue-on-error: false
