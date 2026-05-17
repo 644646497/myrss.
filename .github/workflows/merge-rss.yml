@@ -3,7 +3,7 @@ name: DW 中文全文 RSS
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/30 * * * *'   # 每30分钟更新一次（可改）
+    - cron: '*/30 * * * *'
 
 jobs:
   update:
@@ -19,7 +19,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install trafilatura feedgenerator requests
+          pip install trafilatura feedgenerator requests feedparser
 
       - name: Generate Full-text RSS
         run: python dw_fulltext_rss.py
