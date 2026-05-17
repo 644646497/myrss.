@@ -1,26 +1,40 @@
-name: 抓取知乎日报
+name: Update China News RSS
+
 on:
+  # 自动定时更新（每 30 分钟抓取一次国内新闻）
   schedule:
-    - cron: '0 */4 * * *'
+    - cron: '*/30 * * * *'
+  # 手动触发更新
   workflow_dispatch:
+  # 推送代码时触发
+  push:
+    branches: [ main ]
 
 jobs:
-  fetch:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    timeout-minutes: 5
+
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: 抓取知乎日报
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Python 环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安装依赖
         run: |
-          curl -L -s "https://feeds.feedburner.com/zhihu-daily" > feed.xml
-          echo "抓取完成"
-      
-      - name: 提交更新
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add feed.xml
-          git diff --quiet && git diff --staged --quiet || git commit -m "更新知乎日报"
-          git push
+          python -m pip install --upgrade pip
+          pip install feedparser requests
+
+      - name: 运行国内新闻 RSS 合并脚本
+        run: python merge_rss.py
+
+      - name: 提交并推送更新的 RSS
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: 'Update China News RSS | 自动更新国内新闻源'
+          committer_name: GitHub Actions
+          committer_email: actions@github.com
