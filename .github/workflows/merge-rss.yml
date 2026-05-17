@@ -1,76 +1,25 @@
-name: ThePaper Full RSS Feed
+name: Pengpai RSS
+
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 * * * *'  # 每小时更新一次
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # 安装依赖（只装必须的）
-      - name: Install feedparser
-        run: pip install feedparser requests
-
-      # 抓取澎湃新闻并生成全文RSS
-      - name: Fetch ThePaper news
+      - name: Download RSS
         run: |
-          python3 << 'EOF'
-import feedparser
-import requests
-from datetime import datetime
+          curl -L "https://www.thepaper.cn/rss_newsDetail_forward_1739814" -o feed.xml
 
-# 澎湃新闻官方RSS源（支持全文）
-PAPER_FEED = "https://www.thepaper.cn/feed"
-
-# 伪装成浏览器请求，避免被反爬拦截
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Accept-Language": "zh-CN,zh;q=0.9"
-}
-
-# 抓取并解析RSS
-response = requests.get(PAPER_FEED, headers=headers, timeout=15)
-response.raise_for_status()
-feed = feedparser.parse(response.text)
-
-# 提取前50条新闻
-items = []
-for entry in feed.entries[:50]:
-    items.append({
-        "title": entry.get("title", "无标题"),
-        "link": entry.get("link", ""),
-        "summary": entry.get("summary", ""),  # 这里直接是澎湃的全文内容
-        "pubDate": entry.get("published", datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S GMT"))
-    })
-
-# 生成标准RSS文件
-with open("rss.xml", "w", encoding="utf-8") as f:
-    f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-    f.write('<rss version="2.0">\n')
-    f.write('  <channel>\n')
-    f.write('    <title>澎湃新闻 - 全文聚合</title>\n')
-    f.write('    <link>https://www.thepaper.cn/</link>\n')
-    f.write('    <description>澎湃新闻官方RSS全文聚合，每小时自动更新</description>\n')
-    f.write(f'    <lastBuildDate>{datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S GMT")}</lastBuildDate>\n')
-    for item in items:
-        f.write('    <item>\n')
-        f.write(f'      <title>{item["title"]}</title>\n')
-        f.write(f'      <link>{item["link"]}</link>\n')
-        f.write(f'      <description>{item["summary"]}</description>\n')
-        f.write(f'      <pubDate>{item["pubDate"]}</pubDate>\n')
-        f.write('    </item>\n')
-    f.write('  </channel>\n')
-    f.write('</rss>\n')
-EOF
-
-      # 用原生Git命令提交（避免第三方Action报错）
-      - name: Commit RSS file
+      - name: Commit RSS
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add rss.xml
-          git commit -m "Update ThePaper full RSS feed" || echo "No changes to commit"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+          git add feed.xml
+          git commit -m "update pengpai rss" || exit 0
           git push
