@@ -1,0 +1,4 @@
+trafilatura
+feedgenerator
+requests
+feedparser
