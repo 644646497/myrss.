@@ -1,6 +1,6 @@
 name: DW 中文全文 RSS
 
-on:
+#on:
   workflow_dispatch:
   schedule:
     - cron: '*/30 * * * *'
